@@ -18,8 +18,22 @@ namespace listappAyen.Pages
 
         public List<Employee> Employees { get; set; }
 
-        public void OnGet(string? sortBy = null, string? sortAsc = "true")
+        [BindProperty]
+        public SearchParameters? SearchParams { get; set; }
+
+        public void OnGet(string? keyword = "", string? searchBy = "", string? sortBy = null, string? sortAsc = "true")
         {
+            if (SearchParams == null)
+            {
+                SearchParams = new SearchParameters()
+                {
+                    SortBy = sortBy,
+                    SortAsc = sortAsc == "true",
+                    SearchBy = searchBy,
+                    Keyword = keyword
+                };
+            }
+
             List<Employee> employees = new List<Employee>()
             {
                 new Employee() {
@@ -83,22 +97,32 @@ namespace listappAyen.Pages
                     Salary = 63000 }
             };
 
-            if (sortBy == null || sortAsc == null)
+            if (!string.IsNullOrEmpty(SearchParams.SearchBy) && !string.IsNullOrEmpty(SearchParams.Keyword))
             {
-                this.Employees = employees;
-                return;
+                employees = SearchParams.SearchBy.ToLower() switch
+                {
+                    "name" => employees.Where(e => e.Name != null && e.Name.ToLower().Contains(SearchParams.Keyword.ToLower())).ToList(),
+                    "department" => employees.Where(e => e.Department != null && e.Department.ToLower().Contains(SearchParams.Keyword.ToLower())).ToList(),
+                    "salary" => employees.Where(e => e.Salary.ToString().Contains(SearchParams.Keyword)).ToList(),
+                    "joindate" => employees.Where(e => e.JoinDate.ToString("yyyy-MM-dd").Contains(SearchParams.Keyword)).ToList(),
+                    _ => employees
+                };
             }
 
-            bool sortAscending = sortAsc!.ToLower() == "true";
-
-            this.Employees = sortBy!.ToLower() switch
+            if (SearchParams.SortBy != null)
             {
-                "name" => sortAscending ? employees.OrderBy(e => e.Name).ToList() : employees.OrderByDescending(e => e.Name).ToList(),
-                "department" => sortAscending ? employees.OrderBy(e => e.Department).ToList() : employees.OrderByDescending(e => e.Department).ToList(),
-                "salary" => sortAscending ? employees.OrderBy(e => e.Salary).ToList() : employees.OrderByDescending(e => e.Salary).ToList(),
-                "joindate" => sortAscending ? employees.OrderBy(e => e.JoinDate).ToList() : employees.OrderByDescending(e => e.JoinDate).ToList(),
-                _ => employees,
-            };
+                bool sortAscending = SearchParams.SortAsc == true;
+                employees = SearchParams.SortBy.ToLower() switch
+                {
+                    "name" => sortAscending ? employees.OrderBy(e => e.Name).ToList() : employees.OrderByDescending(e => e.Name).ToList(),
+                    "department" => sortAscending ? employees.OrderBy(e => e.Department).ToList() : employees.OrderByDescending(e => e.Department).ToList(),
+                    "salary" => sortAscending ? employees.OrderBy(e => e.Salary).ToList() : employees.OrderByDescending(e => e.Salary).ToList(),
+                    "joindate" => sortAscending ? employees.OrderBy(e => e.JoinDate).ToList() : employees.OrderByDescending(e => e.JoinDate).ToList(),
+                    _ => employees
+                };
+            }
+
+            Employees = employees;
         }
 
         public class Employee
@@ -107,6 +131,14 @@ namespace listappAyen.Pages
             public string Department { get; set; }
             public decimal Salary { get; set; }
             public DateTime JoinDate { get; set; }
+        }
+
+        public class SearchParameters
+        {
+            public string? SearchBy { get; set; }
+            public string? Keyword { get; set; }
+            public string? SortBy { get; set; }
+            public bool? SortAsc { get; set; }
         }
     }
 }

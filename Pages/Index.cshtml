@@ -10,35 +10,49 @@
     <p>Explore the list of employees.</p>
 </div>
 
+<div class="input-group mb-3">
+    <label class="input-group-text" for="searchBy">Search By</label>
+    <select class="form-select" id="searchBy" asp-for="SearchParams.SearchBy">
+        <option value="" selected>Choose...</option>
+        <option value="Name">Name</option>
+        <option value="Department">Department</option>
+        <option value="Salary">Salary</option>
+        <option value="JoinDate">Join Date</option>
+    </select>
+
+    <input type="text" id="keyword" class="form-control" asp-for="SearchParams.Keyword">
+    <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="search()"><i class="bi bi-search"></i></button>
+</div>
+
 <table class="table">
     <thead>
         <tr>
             <th scope="col">
                 Name
                 <div class="btn-group" role="group" aria-label="">
-                    <a href="~/index?sortBy=name&sortAsc=false" class="btn btn-secondary">&lt;</a>
-                    <a href="~/index?sortBy=name&sortAsc=true" class="btn btn-secondary">&gt;</a>
+                    <a href="~/index?sortBy=name&sortAsc=false&searchBy=@Model.SearchParams.SearchBy&keyword=@Model.SearchParams.Keyword" class="btn btn-secondary">&lt;</a>
+                    <a href="~/index?sortBy=name&sortAsc=true&searchBy=@Model.SearchParams.SearchBy&keyword=@Model.SearchParams.Keyword" class="btn btn-secondary">&gt;</a>
                 </div>
             </th>
             <th scope="col">
                 Department
                 <div class="btn-group" role="group" aria-label="">
-                    <a href="~/index?sortBy=department&sortAsc=false" class="btn btn-secondary">&lt;</a>
-                    <a href="~/index?sortBy=department&sortAsc=true" class="btn btn-secondary">&gt;</a>
+                    <a href="~/index?sortBy=department&sortAsc=false&searchBy=@Model.SearchParams.SearchBy&keyword=@Model.SearchParams.Keyword" class="btn btn-secondary">&lt;</a>
+                    <a href="~/index?sortBy=department&sortAsc=true&searchBy=@Model.SearchParams.SearchBy&keyword=@Model.SearchParams.Keyword" class="btn btn-secondary">&gt;</a>
                 </div>
             </th>
             <th scope="col">
                 Salary
                 <div class="btn-group" role="group" aria-label="">
-                    <a href="~/index?sortBy=salary&sortAsc=false" class="btn btn-secondary">&lt;</a>
-                    <a href="~/index?sortBy=salary&sortAsc=true" class="btn btn-secondary">&gt;</a>
+                    <a href="~/index?sortBy=salary&sortAsc=false&searchBy=@Model.SearchParams.SearchBy&keyword=@Model.SearchParams.Keyword" class="btn btn-secondary">&lt;</a>
+                    <a href="~/index?sortBy=salary&sortAsc=true&searchBy=@Model.SearchParams.SearchBy&keyword=@Model.SearchParams.Keyword" class="btn btn-secondary">&gt;</a>
                 </div>
             </th>
             <th scope="col">
                 Join Date
                 <div class="btn-group" role="group" aria-label="">
-                    <a href="~/index?sortBy=joinDate&sortAsc=false" class="btn btn-secondary">&lt;</a>
-                    <a href="~/index?sortBy=joinDate&sortAsc=true" class="btn btn-secondary">&gt;</a>
+                    <a href="~/index?sortBy=joinDate&sortAsc=false&searchBy=@Model.SearchParams.SearchBy&keyword=@Model.SearchParams.Keyword" class="btn btn-secondary">&lt;</a>
+                    <a href="~/index?sortBy=joinDate&sortAsc=true&searchBy=@Model.SearchParams.SearchBy&keyword=@Model.SearchParams.Keyword" class="btn btn-secondary">&gt;</a>
                 </div>
             </th>
         </tr>
@@ -55,3 +69,11 @@
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        function search() {
+            window.location = "../index?sortBy=@Model.SearchParams.SortBy&sortAsc=@Model.SearchParams.SortAsc&searchBy=" + $("#searchBy").val() + "&keyword=" + $("#keyword").val();
+        }
+    </script>
+}
