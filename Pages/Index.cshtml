@@ -6,8 +6,7 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Employees</h1>
-    <p>Explore the list of employees.</p>
+    <h1 class="display-4">Employee List</h1>
 </div>
 
 <div class="input-group mb-3">
@@ -21,7 +20,7 @@
     </select>
 
     <input type="text" id="keyword" class="form-control" asp-for="SearchParams.Keyword">
-    <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="search()"><i class="bi bi-search"></i></button>
+    <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="search()">Search</button>
 </div>
 
 <table class="table">
@@ -30,29 +29,29 @@
             <th scope="col">
                 Name
                 <div class="btn-group" role="group" aria-label="">
-                    <a href="~/index?sortBy=name&sortAsc=false&searchBy=@Model.SearchParams.SearchBy&keyword=@Model.SearchParams.Keyword" class="btn btn-secondary">&lt;</a>
-                    <a href="~/index?sortBy=name&sortAsc=true&searchBy=@Model.SearchParams.SearchBy&keyword=@Model.SearchParams.Keyword" class="btn btn-secondary">&gt;</a>
+                    <a href="~/index?sortBy=Name&sortAsc=false" type="button" class="btn btn-secondary">&lt;</a>
+                    <a href="~/index?sortBy=Name&sortAsc=true" type="button" class="btn btn-secondary">&gt;</a>
                 </div>
             </th>
             <th scope="col">
                 Department
                 <div class="btn-group" role="group" aria-label="">
-                    <a href="~/index?sortBy=department&sortAsc=false&searchBy=@Model.SearchParams.SearchBy&keyword=@Model.SearchParams.Keyword" class="btn btn-secondary">&lt;</a>
-                    <a href="~/index?sortBy=department&sortAsc=true&searchBy=@Model.SearchParams.SearchBy&keyword=@Model.SearchParams.Keyword" class="btn btn-secondary">&gt;</a>
+                    <a href="~/index?sortBy=Department&sortAsc=false" type="button" class="btn btn-secondary">&lt;</a>
+                    <a href="~/index?sortBy=Department&sortAsc=true" type="button" class="btn btn-secondary">&gt;</a>
                 </div>
             </th>
             <th scope="col">
                 Salary
                 <div class="btn-group" role="group" aria-label="">
-                    <a href="~/index?sortBy=salary&sortAsc=false&searchBy=@Model.SearchParams.SearchBy&keyword=@Model.SearchParams.Keyword" class="btn btn-secondary">&lt;</a>
-                    <a href="~/index?sortBy=salary&sortAsc=true&searchBy=@Model.SearchParams.SearchBy&keyword=@Model.SearchParams.Keyword" class="btn btn-secondary">&gt;</a>
+                    <a href="~/index?sortBy=Salary&sortAsc=false" type="button" class="btn btn-secondary">&lt;</a>
+                    <a href="~/index?sortBy=Salary&sortAsc=true" type="button" class="btn btn-secondary">&gt;</a>
                 </div>
             </th>
             <th scope="col">
                 Join Date
                 <div class="btn-group" role="group" aria-label="">
-                    <a href="~/index?sortBy=joinDate&sortAsc=false&searchBy=@Model.SearchParams.SearchBy&keyword=@Model.SearchParams.Keyword" class="btn btn-secondary">&lt;</a>
-                    <a href="~/index?sortBy=joinDate&sortAsc=true&searchBy=@Model.SearchParams.SearchBy&keyword=@Model.SearchParams.Keyword" class="btn btn-secondary">&gt;</a>
+                    <a href="~/index?sortBy=JoinDate&sortAsc=false" type="button" class="btn btn-secondary">&lt;</a>
+                    <a href="~/index?sortBy=JoinDate&sortAsc=true" type="button" class="btn btn-secondary">&gt;</a>
                 </div>
             </th>
         </tr>
@@ -70,10 +69,37 @@
     </tbody>
 </table>
 
+<nav aria-label="...">
+    <ul class="pagination">
+        @{
+            var paramString = "sortBy=" + Model.SearchParams!.SortBy + "&sortAsc=" + Model.SearchParams!.SortAsc + "&keyword=" + Model.SearchParams!.Keyword + "&searchBy=" + Model.SearchParams!.SearchBy;
+        }
+        @{
+            if (Model.SearchParams!.PageIndex > 1)
+            {
+                int prev = Model.SearchParams.PageIndex.Value - 1;
+                <li class="page-item">
+                    <a class="page-link" href="~/index?@(paramString)&pageSize=@(Model.SearchParams!.PageSize)&pageIndex=@(prev)">Previous</a>
+                </li>
+            }
+        }
+        <li class="page-item active"><a class="page-link" href="#">@Model.SearchParams.PageIndex of @(Model.SearchParams!.PageCount)</a></li>
+        @{
+            if (Model.SearchParams!.PageIndex < Model.SearchParams.PageCount)
+            {
+                int next = Model.SearchParams.PageIndex.Value + 1;
+                <li class="page-item">
+                    <a class="page-link" href="~/index?@(paramString)&pageSize=@(Model.SearchParams!.PageSize)&pageIndex=@(next)">Next</a>
+                </li>
+            }
+        }
+    </ul>
+</nav>
+
 @section Scripts {
     <script>
         function search() {
-            window.location = "../index?sortBy=@Model.SearchParams.SortBy&sortAsc=@Model.SearchParams.SortAsc&searchBy=" + $("#searchBy").val() + "&keyword=" + $("#keyword").val();
+            window.location = "../index?sortBy=Name&sortAsc=false&searchBy=" + $("#searchBy").val() + "&keyword=" + $("#keyword").val()
         }
     </script>
 }

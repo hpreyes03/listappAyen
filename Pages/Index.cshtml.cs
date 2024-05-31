@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace listappAyen.Pages
@@ -21,7 +22,7 @@ namespace listappAyen.Pages
         [BindProperty]
         public SearchParameters? SearchParams { get; set; }
 
-        public void OnGet(string? keyword = "", string? searchBy = "", string? sortBy = null, string? sortAsc = "true")
+        public void OnGet(string? keyword = "", string? searchBy = "", string? sortBy = null, string? sortAsc = "true", int pageSize = 5, int pageIndex = 1)
         {
             if (SearchParams == null)
             {
@@ -30,11 +31,61 @@ namespace listappAyen.Pages
                     SortBy = sortBy,
                     SortAsc = sortAsc == "true",
                     SearchBy = searchBy,
-                    Keyword = keyword
+                    Keyword = keyword,
+                    PageIndex = pageIndex,
+                    PageSize = pageSize
                 };
             }
 
-            List<Employee> employees = new List<Employee>()
+            List<Employee> employees = GetEmployeeList();
+
+            if (!string.IsNullOrEmpty(SearchParams.SearchBy) && !string.IsNullOrEmpty(SearchParams.Keyword))
+            {
+                switch (SearchParams.SearchBy.ToLower())
+                {
+                    case "name":
+                        employees = employees.Where(e => e.Name.Contains(SearchParams.Keyword, StringComparison.OrdinalIgnoreCase)).ToList();
+                        break;
+                    case "department":
+                        employees = employees.Where(e => e.Department.Contains(SearchParams.Keyword, StringComparison.OrdinalIgnoreCase)).ToList();
+                        break;
+                    case "salary":
+                        if (decimal.TryParse(SearchParams.Keyword, out decimal salary))
+                        {
+                            employees = employees.Where(e => e.Salary == salary).ToList();
+                        }
+                        break;
+                    case "joindate":
+                        if (DateTime.TryParse(SearchParams.Keyword, out DateTime joinDate))
+                        {
+                            employees = employees.Where(e => e.JoinDate.Date == joinDate.Date).ToList();
+                        }
+                        break;
+                }
+            }
+
+            if (SearchParams.SortBy != null)
+            {
+                employees = SearchParams.SortBy.ToLower() switch
+                {
+                    "name" => SearchParams.SortAsc == true ? employees.OrderBy(e => e.Name).ToList() : employees.OrderByDescending(e => e.Name).ToList(),
+                    "department" => SearchParams.SortAsc == true ? employees.OrderBy(e => e.Department).ToList() : employees.OrderByDescending(e => e.Department).ToList(),
+                    "salary" => SearchParams.SortAsc == true ? employees.OrderBy(e => e.Salary).ToList() : employees.OrderByDescending(e => e.Salary).ToList(),
+                    "joindate" => SearchParams.SortAsc == true ? employees.OrderBy(e => e.JoinDate).ToList() : employees.OrderByDescending(e => e.JoinDate).ToList(),
+                    _ => employees
+                };
+            }
+
+            int totalCount = employees.Count;
+            employees = employees.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+
+            Employees = employees;
+            SearchParams.PageCount = (int)Math.Ceiling(totalCount / (double)pageSize);
+        }
+
+        private List<Employee> GetEmployeeList()
+        {
+            return new List<Employee>()
             {
                 new Employee() {
                     Name = "John Doe",
@@ -97,32 +148,6 @@ namespace listappAyen.Pages
                     Salary = 63000 }
             };
 
-            if (!string.IsNullOrEmpty(SearchParams.SearchBy) && !string.IsNullOrEmpty(SearchParams.Keyword))
-            {
-                employees = SearchParams.SearchBy.ToLower() switch
-                {
-                    "name" => employees.Where(e => e.Name != null && e.Name.ToLower().Contains(SearchParams.Keyword.ToLower())).ToList(),
-                    "department" => employees.Where(e => e.Department != null && e.Department.ToLower().Contains(SearchParams.Keyword.ToLower())).ToList(),
-                    "salary" => employees.Where(e => e.Salary.ToString().Contains(SearchParams.Keyword)).ToList(),
-                    "joindate" => employees.Where(e => e.JoinDate.ToString("yyyy-MM-dd").Contains(SearchParams.Keyword)).ToList(),
-                    _ => employees
-                };
-            }
-
-            if (SearchParams.SortBy != null)
-            {
-                bool sortAscending = SearchParams.SortAsc == true;
-                employees = SearchParams.SortBy.ToLower() switch
-                {
-                    "name" => sortAscending ? employees.OrderBy(e => e.Name).ToList() : employees.OrderByDescending(e => e.Name).ToList(),
-                    "department" => sortAscending ? employees.OrderBy(e => e.Department).ToList() : employees.OrderByDescending(e => e.Department).ToList(),
-                    "salary" => sortAscending ? employees.OrderBy(e => e.Salary).ToList() : employees.OrderByDescending(e => e.Salary).ToList(),
-                    "joindate" => sortAscending ? employees.OrderBy(e => e.JoinDate).ToList() : employees.OrderByDescending(e => e.JoinDate).ToList(),
-                    _ => employees
-                };
-            }
-
-            Employees = employees;
         }
 
         public class Employee
@@ -139,6 +164,9 @@ namespace listappAyen.Pages
             public string? Keyword { get; set; }
             public string? SortBy { get; set; }
             public bool? SortAsc { get; set; }
+            public int? PageSize { get; set; }
+            public int? PageIndex { get; set; }
+            public int? PageCount { get; set; }
         }
     }
 }
