@@ -1,39 +1,57 @@
 ﻿@page
-@model IndexModel
+@model listappAyen.Pages.IndexModel
+
 @{
     ViewData["Title"] = "Home page";
 }
 
 <div class="text-center">
-    <h1 class="display-4">reyes page</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Employees</h1>
+    <p>Explore the list of employees.</p>
 </div>
-<div class="container">
-    <h1 class="my-4">Employee List</h1>
 
-    <table class="table table-striped">
-        <thead>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">
+                Name
+                <div class="btn-group" role="group" aria-label="">
+                    <a href="~/index?sortBy=name&sortAsc=false" class="btn btn-secondary">&lt;</a>
+                    <a href="~/index?sortBy=name&sortAsc=true" class="btn btn-secondary">&gt;</a>
+                </div>
+            </th>
+            <th scope="col">
+                Department
+                <div class="btn-group" role="group" aria-label="">
+                    <a href="~/index?sortBy=department&sortAsc=false" class="btn btn-secondary">&lt;</a>
+                    <a href="~/index?sortBy=department&sortAsc=true" class="btn btn-secondary">&gt;</a>
+                </div>
+            </th>
+            <th scope="col">
+                Salary
+                <div class="btn-group" role="group" aria-label="">
+                    <a href="~/index?sortBy=salary&sortAsc=false" class="btn btn-secondary">&lt;</a>
+                    <a href="~/index?sortBy=salary&sortAsc=true" class="btn btn-secondary">&gt;</a>
+                </div>
+            </th>
+            <th scope="col">
+                Join Date
+                <div class="btn-group" role="group" aria-label="">
+                    <a href="~/index?sortBy=joinDate&sortAsc=false" class="btn btn-secondary">&lt;</a>
+                    <a href="~/index?sortBy=joinDate&sortAsc=true" class="btn btn-secondary">&gt;</a>
+                </div>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var employee in Model.Employees)
+        {
             <tr>
-                <th>Name</th>
-                <th>Department</th>
-                <th>Salary</th>
-                <th>Join Date</th>
+                <td>@employee.Name</td>
+                <td>@employee.Department</td>
+                <td>@employee.Salary</td>
+                <td>@employee.JoinDate.ToShortDateString()</td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach (var employee in Model.Employees)
-            {
-                <tr>
-                    <td>@employee.Name</td>
-                    <td>@employee.Department</td>
-                    <td>@employee.Salary</td>
-                    <td>@employee.JoinDate.ToShortDateString()</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
-
-@section Scripts {
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-}
+        }
+    </tbody>
+</table>
